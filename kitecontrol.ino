@@ -45,12 +45,23 @@
 
 // We are using a minimal setup with a batterusensor and a compass sensor and pan/tilt servos
 
+//address definitions
 const int addrBattery=    32;
 const int addrCompass=    34;
 const int addrServoPan=   128;
 const int addrServoTilt=  129;
 
+//pin definitions
+const int pinBattery=0;
+const int pinServoPan=12;
+const int pinServoTilt=13;
 
+//statusCodes
+const int statusError=0;
+const int statusOk=1;
+
+
+//global variables
 int request[2];
 
 
@@ -64,11 +75,11 @@ void setup()
 void loop()
 {
     int isValid=readRequest();
-    if (isValid>0)
+    if (isValid==statusOk)
     {
        //process request
        int statusCode=dispatchRequestToSubDevice();
-       if (statusCode>0)
+       if (statusCode==statusOk)
        {
           //ok..send data resposne 
        }
@@ -87,7 +98,7 @@ void loop()
 int dispatchRequestToSubDevice()
 {
    //look at the address and send the data to the specified subdevice
-   int subdeviceResponse=0;
+   int subdeviceResponse=statusError;
    switch (request[0])
    {
        case addrBattery:     subdeviceResponse=getBattery(request[1]);   break;
@@ -102,7 +113,7 @@ int dispatchRequestToSubDevice()
 
 int readRequest()
 {
-  int statusCode=0;
+  int statusCode=statusError;
   if (Serial.available()>2)
   {
      int addressByte=Serial.read();
@@ -112,7 +123,7 @@ int readRequest()
      {
         request[0]=addressByte;
         request[1]=valueByte;
-        statusCode=1;
+        statusCode=statusOk;
      }
   }
   return statusCode;
